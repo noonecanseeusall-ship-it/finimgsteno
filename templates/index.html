@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Steganography</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f5f5f5;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 1.2em;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+            background: transparent;
+        }
+
+        .tab:hover {
+            background: #e0e0e0;
+        }
+
+        .tab.active {
+            background: white;
+            color: #667eea;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover {
+            background: #f8f9ff;
+            border-color: #764ba2;
+        }
+
+        .upload-area.dragover {
+            background: #f0f0ff;
+            border-color: #764ba2;
+        }
+
+        .upload-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1em;
+            resize: vertical;
+            min-height: 120px;
+            margin-bottom: 20px;
+            font-family: inherit;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1em;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1em;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9ff;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        .result h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .passkey-box {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #667eea;
+            word-break: break-all;
+            font-family: monospace;
+            margin-bottom: 15px;
+        }
+
+        .preview-image {
+            max-width: 100%;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        .download-btn {
+            background: #28a745;
+            margin-top: 15px;
+        }
+
+        .download-btn:hover {
+            box-shadow: 0 10px 20px rgba(40, 167, 69, 0.4);
+        }
+
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        .success {
+            background: #efe;
+            color: #3c3;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .success.show {
+            display: block;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .file-name {
+            margin-top: 10px;
+            color: #667eea;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔐 Image Steganography</h1>
+            <p>Hide secret messages inside images</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('encode')">🔒 Encode</button>
+            <button class="tab" onclick="switchTab('decode')">🔓 Decode</button>
+        </div>
+
+        <div class="content">
+            <!-- ENCODE TAB -->
+            <div id="encode-tab" class="tab-content active">
+                <div class="upload-area" id="encode-upload" onclick="document.getElementById('encode-file').click()">
+                    <div class="upload-icon">📁</div>
+                    <h3>Click or drag image here</h3>
+                    <p>PNG or JPG format</p>
+                    <input type="file" id="encode-file" accept="image/*">
+                    <div class="file-name" id="encode-filename"></div>
+                </div>
+
+                <textarea id="secret-message" placeholder="Enter your secret message here..."></textarea>
+
+                <button class="btn" onclick="encodeMessage()">🔒 Hide Message</button>
+
+                <div class="loading" id="encode-loading">
+                    <div class="spinner"></div>
+                    <p>Encoding...</p>
+                </div>
+
+                <div class="error" id="encode-error"></div>
+
+                <div class="result" id="encode-result">
+                    <h3>✅ Success!</h3>
+                    <p><strong>Save this passkey:</strong></p>
+                    <div class="passkey-box" id="passkey"></div>
+                    <button class="btn download-btn" onclick="downloadImage()">📥 Download Encoded Image</button>
+                </div>
+            </div>
+
+            <!-- DECODE TAB -->
+            <div id="decode-tab" class="tab-content">
+                <div class="upload-area" id="decode-upload" onclick="document.getElementById('decode-file').click()">
+                    <div class="upload-icon">📁</div>
+                    <h3>Click or drag encoded image here</h3>
+                    <p>PNG format</p>
+                    <input type="file" id="decode-file" accept="image/*">
+                    <div class="file-name" id="decode-filename"></div>
+                </div>
+
+                <input type="text" id="passkey-input" placeholder="Enter your passkey...">
+
+                <button class="btn" onclick="decodeMessage()">🔓 Reveal Message</button>
+
+                <div class="loading" id="decode-loading">
+                    <div class="spinner"></div>
+                    <p>Decoding...</p>
+                </div>
+
+                <div class="error" id="decode-error"></div>
+
+                <div class="result" id="decode-result">
+                    <h3>📜 Decoded Message:</h3>
+                    <div class="passkey-box" id="decoded-message"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let encodedImageFilename = null;
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tab + '-tab').classList.add('active');
+            
+            // Reset results
+            document.querySelectorAll('.result, .error, .success, .loading').forEach(el => {
+                el.classList.remove('show');
+            });
+        }
+
+        // Drag and drop for encode
+        const encodeUpload = document.getElementById('encode-upload');
+        encodeUpload.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            encodeUpload.classList.add('dragover');
+        });
+        encodeUpload.addEventListener('dragleave', () => {
+            encodeUpload.classList.remove('dragover');
+        });
+        encodeUpload.addEventListener('drop', (e) => {
+            e.preventDefault();
+            encodeUpload.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                document.getElementById('encode-file').files = e.dataTransfer.files;
+                document.getElementById('encode-filename').textContent = file.name;
+            }
+        });
+
+        // Drag and drop for decode
+        const decodeUpload = document.getElementById('decode-upload');
+        decodeUpload.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            decodeUpload.classList.add('dragover');
+        });
+        decodeUpload.addEventListener('dragleave', () => {
+            decodeUpload.classList.remove('dragover');
+        });
+        decodeUpload.addEventListener('drop', (e) => {
+            e.preventDefault();
+            decodeUpload.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                document.getElementById('decode-file').files = e.dataTransfer.files;
+                document.getElementById('decode-filename').textContent = file.name;
+            }
+        });
+
+        // File input change handlers
+        document.getElementById('encode-file').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                document.getElementById('encode-filename').textContent = file.name;
+            }
+        });
+
+        document.getElementById('decode-file').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                document.getElementById('decode-filename').textContent = file.name;
+            }
+        });
+
+        async function encodeMessage() {
+            const fileInput = document.getElementById('encode-file');
+            const message = document.getElementById('secret-message').value;
+            const errorDiv = document.getElementById('encode-error');
+            const resultDiv = document.getElementById('encode-result');
+            const loadingDiv = document.getElementById('encode-loading');
+
+            errorDiv.classList.remove('show');
+            resultDiv.classList.remove('show');
+
+            if (!fileInput.files[0]) {
+                errorDiv.textContent = '❌ Please select an image';
+                errorDiv.classList.add('show');
+                return;
+            }
+
+            if (!message.trim()) {
+                errorDiv.textContent = '❌ Please enter a message';
+                errorDiv.classList.add('show');
+                return;
+            }
+
+            loadingDiv.classList.add('show');
+
+            const formData = new FormData();
+            formData.append('image', fileInput.files[0]);
+            formData.append('message', message);
+
+            try {
+                const response = await fetch('/encode', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                loadingDiv.classList.remove('show');
+
+                if (data.success) {
+                    document.getElementById('passkey').textContent = data.passkey;
+                    encodedImageFilename = data.filename;
+                    resultDiv.classList.add('show');
+                } else {
+                    errorDiv.textContent = '❌ ' + (data.error || 'Encoding failed');
+                    errorDiv.classList.add('show');
+                }
+            } catch (error) {
+                loadingDiv.classList.remove('show');
+                errorDiv.textContent = '❌ Error: ' + error.message;
+                errorDiv.classList.add('show');
+            }
+        }
+
+        async function decodeMessage() {
+            const fileInput = document.getElementById('decode-file');
+            const passkey = document.getElementById('passkey-input').value;
+            const errorDiv = document.getElementById('decode-error');
+            const resultDiv = document.getElementById('decode-result');
+            const loadingDiv = document.getElementById('decode-loading');
+
+            errorDiv.classList.remove('show');
+            resultDiv.classList.remove('show');
+
+            if (!fileInput.files[0]) {
+                errorDiv.textContent = '❌ Please select an image';
+                errorDiv.classList.add('show');
+                return;
+            }
+
+            if (!passkey.trim()) {
+                errorDiv.textContent = '❌ Please enter the passkey';
+                errorDiv.classList.add('show');
+                return;
+            }
+
+            loadingDiv.classList.add('show');
+
+            const formData = new FormData();
+            formData.append('image', fileInput.files[0]);
+            formData.append('passkey', passkey);
+
+            try {
+                const response = await fetch('/decode', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                loadingDiv.classList.remove('show');
+
+                if (data.success) {
+                    document.getElementById('decoded-message').textContent = data.message;
+                    resultDiv.classList.add('show');
+                } else {
+                    errorDiv.textContent = '❌ ' + (data.error || 'Decoding failed');
+                    errorDiv.classList.add('show');
+                }
+            } catch (error) {
+                loadingDiv.classList.remove('show');
+                errorDiv.textContent = '❌ Failed to decode. Check your passkey or image.';
+                errorDiv.classList.add('show');
+            }
+        }
+
+        function downloadImage() {
+            if (!encodedImageFilename) return;
+
+            const link = document.createElement('a');
+            link.href = '/download/' + encodedImageFilename;
+            link.download = encodedImageFilename;
+            link.click();
+        }
+    </script>
+</body>
+</html>
