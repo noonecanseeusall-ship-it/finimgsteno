@@ -1,5 +1,5 @@
 # ==============================
-# 🧠 IMAGE STEGANOGRAPHY ENCODER (No metadata)
+# IMAGE STEGANOGRAPHY ENCODER (No metadata)
 # ==============================
 
 from PIL import Image
@@ -9,7 +9,7 @@ from google.colab import files
 import os, time
 
 # -----------------------------
-# 🔐 Encryption
+# Encryption
 # -----------------------------
 def generate_key():
     return Fernet.generate_key()
@@ -19,7 +19,7 @@ def encrypt_message(message, key):
     return cipher.encrypt(message.encode())
 
 # -----------------------------
-# 🧩 Embed Data in Image
+# Embed Data in Image
 # -----------------------------
 def embed_data_in_image(image_path, data_bytes, output_path="stego_image.png"):
     img = Image.open(image_path)
@@ -43,7 +43,7 @@ def embed_data_in_image(image_path, data_bytes, output_path="stego_image.png"):
     return output_path
 
 # -----------------------------
-# 🚀 Encode Message
+# Encode Message
 # -----------------------------
 def encode_message(image_path, message):
     key = generate_key()
@@ -53,9 +53,9 @@ def encode_message(image_path, message):
     return key.decode()
 
 # -----------------------------
-# 🎯 User Interaction
+# User Interaction
 # -----------------------------
-print("📤 Upload your image (PNG/JPG):")
+print("Upload your image (PNG/JPG):")
 uploaded = files.upload()
 img_name = list(uploaded.keys())[0]
 
@@ -63,13 +63,13 @@ secret_text = input("📝 Enter the secret text you want to hide: ")
 
 # Encode message
 passkey = encode_message(img_name, secret_text)
-print(f"\n✅ Message successfully hidden in image!")
-print(f"🔑 Save this passkey: {passkey}")
+print(f"\nMessage successfully hidden in image!")
+print(f"Save this passkey: {passkey}")
 
-# ✅ Download output
+#  Download output
 output_path = "stego_image.png"
 if os.path.exists(output_path):
-    print("\n📥 Preparing stego image for download...")
+    print("\nPreparing stego image for download...")
     time.sleep(1)
     files.download(output_path)
 else:
