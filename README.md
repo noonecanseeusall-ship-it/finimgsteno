@@ -1,14 +1,17 @@
-# 🔐 Image Steganography Web App
+# Python Project
+Student's Name and rollno-Vishwas saini(23EJCCS301),Sabrina(23EJCCS300)
+
+#  Image Steganography Web App
 
 A beautiful web interface for hiding secret messages inside images using steganography and encryption.
 
 ## Features
 
-- 🔒 **Encode**: Hide encrypted messages inside images
-- 🔓 **Decode**: Extract hidden messages using a passkey
-- 🎨 Modern, responsive UI with drag-and-drop support
-- 🔐 Secure encryption using Fernet (symmetric encryption)
-- 📱 Works on desktop and mobile browsers
+-  **Encode**: Hide encrypted messages inside images
+-  **Decode**: Extract hidden messages using a passkey
+-  Modern, responsive UI with drag-and-drop support
+-  Secure encryption using Fernet (symmetric encryption)
+-  Works on desktop and mobile browsers
 
 ## Installation
 
