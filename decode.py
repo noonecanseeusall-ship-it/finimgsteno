@@ -1,5 +1,5 @@
 # ==============================
-# 🔍 IMAGE STEGANOGRAPHY DECODER (No metadata)
+# IMAGE STEGANOGRAPHY DECODER (No metadata)
 # ==============================
 
 from PIL import Image
@@ -8,14 +8,14 @@ from cryptography.fernet import Fernet
 from google.colab import files
 
 # -----------------------------
-# 🔓 Decryption
+# Decryption
 # -----------------------------
 def decrypt_message(encrypted_message, key):
     cipher = Fernet(key)
     return cipher.decrypt(encrypted_message).decode()
 
 # -----------------------------
-# 🧩 Extract Data from Image
+# Extract Data from Image
 # -----------------------------
 def extract_data_from_image(image_path):
     img = Image.open(image_path)
@@ -33,24 +33,24 @@ def extract_data_from_image(image_path):
     return data_bytes.tobytes()
 
 # -----------------------------
-# 🚀 Decode Message
+# Decode Message
 # -----------------------------
 def decode_message(image_path, key):
     data_bytes = extract_data_from_image(image_path)
     return decrypt_message(data_bytes, key.encode())
 
 # -----------------------------
-# 🎯 User Interaction
+# User Interaction
 # -----------------------------
-print("📤 Upload the encoded (stego) image:")
+print("Upload the encoded (stego) image:")
 uploaded = files.upload()
 stego_img = list(uploaded.keys())[0]
 
-passkey = input("🔑 Enter the secret passkey: ")
+passkey = input("Enter the secret passkey: ")
 
 try:
     decoded_text = decode_message(stego_img, passkey)
-    print("\n📜 Decoded Message:")
+    print("\nDecoded Message:")
     print(decoded_text)
 except Exception as e:
     print("\n❌ Failed to decode! Check your passkey or image.")
